@@ -1,0 +1,66 @@
+# SMS deployment (design §13). Single-VPS baseline; stateless API scales out.
+# Usage: cp backend/.env.example backend/.env  (edit!) && docker compose up -d --build
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sms
+      POSTGRES_USER: sms_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in environment}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sms_app -d sms"]
+      interval: 10s
+      retries: 5
+    # bind loopback only — nginx proxies everything public
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://sms_app:${POSTGRES_PASSWORD}@db:5432/sms
+      SESSION_COOKIE_SECURE: "true"
+      DEV_MODE: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "8000"
+
+  web:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: http://api:8000
+    depends_on:
+      - api
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/certs:/etc/nginx/certs:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+      - web
+
+volumes:
+  pgdata:

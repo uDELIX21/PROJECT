@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ data.school.name }} — {{ data.term }} Report</title>
+<style>
+  @page { size: A4; margin: 14mm 12mm; }
+  body { font-family: DejaVu Sans, sans-serif; font-size: 9pt; color: #111; }
+  header { text-align: center; margin-bottom: 6mm; }
+  header h1 { font-size: 15pt; margin: 0; color: #16603e; }
+  header .motto { font-style: italic; font-size: 8pt; margin: 1mm 0; }
+  header .contact { font-size: 7pt; color: #555; }
+  header .doctype { font-size: 11pt; font-weight: bold; margin-top: 3mm; }
+  .info { margin: 3mm 0; font-size: 9pt; }
+  h2 { font-size: 10pt; border-bottom: 1px solid #16603e; color: #16603e;
+       padding-bottom: 1mm; margin: 5mm 0 2mm; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 3mm; }
+  th, td { border: 1px solid #999; padding: 1.4mm 2mm; text-align: left; font-size: 8pt; }
+  th { background: #eef7f1; }
+  .num { text-align: right; }
+  .ctr { text-align: center; }
+  .small { font-size: 7pt; color: #555; font-style: italic; }
+  .signatures { margin-top: 8mm; display: flex; justify-content: space-between; font-size: 8pt; }
+  .sig { border-top: 1px solid #333; width: 60mm; padding-top: 1mm; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>{{ data.school.name }}</h1>
+  {% if data.school.motto %}<div class="motto">{{ data.school.motto }}</div>{% endif %}
+  <div class="contact">
+    {{ [data.school.location, data.school.phone, data.school.digital_address] | select | join(' · ') }}
+  </div>
+  <div class="doctype">
+    {% block doctype %}Terminal Report{% endblock %} — {{ data.term }}, {{ data.year }}
+  </div>
+</header>
+
+<div class="info">
+  <strong>{{ data.student.name }}</strong> · Class {{ data.class.stream }} ·
+  Code {{ data.student.admission_code }} · {{ 'Female' if data.student.gender == 'F' else 'Male' }}
+</div>
+
+{% block content %}{% endblock %}
+
+{% if 'attendance' in layout.get('sections', []) %}
+<h2>Attendance</h2>
+<div>
+  Days recorded: {{ data.attendance.days_recorded }}
+  {% for status, n in data.attendance.counts.items() %} · {{ status|title }}: {{ n }}{% endfor %}
+  · Attendance: {{ data.attendance.percentage if data.attendance.percentage is not none else '–' }}%
+</div>
+{% endif %}
+
+{% if 'remarks' in layout.get('sections', []) %}
+<h2>Remarks</h2>
+<p>Class teacher: {{ data.get('teacher_remark') or '' }}</p>
+<p>Head teacher: {{ data.get('head_remark') or '' }}</p>
+<div class="signatures">
+  <div class="sig">Class Teacher's Signature</div>
+  <div class="sig">Head Teacher's Signature</div>
+</div>
+{% endif %}
+
+{% if layout.get('show_bece_note') and data.class.band == 'JHS' %}
+<p class="small">Any BECE-style grade shown here is a school assessment, not an official BECE result.</p>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,44 @@
+{% extends "_base.html" %}
+{% block doctype %}Primary Terminal Report{% endblock %}
+{% block content %}
+{% if 'academics' in layout.get('sections', []) and data.subjects %}
+<h2>Academic Performance</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Subject</th>
+      {% for c in data.subjects[0].components %}<th>{{ c.code.replace('_', ' ')|title }}</th>{% endfor %}
+      <th>Total</th><th>Grade</th>
+      {% if data.positions_enabled and layout.get('show_positions') %}<th>Pos.</th>{% endif %}
+      <th>Remark</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in data.subjects %}
+    <tr>
+      <td>{{ s.name }}</td>
+      {% for c in s.components %}
+        <td class="num">{{ '%.1f'|format(s.component_scores.get(c.code)) if s.component_scores.get(c.code) is not none else '–' }}</td>
+      {% endfor %}
+      <td class="num">{{ '%.1f'|format(s.final_score) if s.final_score is not none else '–' }}</td>
+      <td class="ctr">{{ s.grade or '–' }}</td>
+      {% if data.positions_enabled and layout.get('show_positions') %}
+        <td class="ctr">{{ s.position ~ '/' ~ s.class_size if s.position else '–' }}</td>
+      {% endif %}
+      <td>{{ s.remark or '' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if 'competencies' in layout.get('sections', []) and data.competencies %}
+<h2>Core Competencies</h2>
+<table>
+  <tr><th>Competency</th><th>Rating</th><th>Comment</th></tr>
+  {% for c in data.competencies %}
+  <tr><td>{{ c.name }}</td><td class="ctr">{{ c.rating|title }}</td><td>{{ c.comment or '' }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}
