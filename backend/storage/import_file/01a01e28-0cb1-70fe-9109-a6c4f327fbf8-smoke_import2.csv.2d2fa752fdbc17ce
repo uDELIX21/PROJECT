@@ -1,0 +1,4 @@
+admission_code,surname,other_names,gender,date_of_birth,class,guardian_name,guardian_relationship,guardian_phone,guardian_email,guardian_address,ghana_digital_address,opening_balance_ghs
+,Smoke,Alpha,F,2018-06-01,Basic 2 A,Alpha Mother,MOTHER,0205550001,,,GA-900-1111,75.25
+,Smoke,Beta,M,2017-07-07,Basic 2 A,Abena Guardian,MOTHER,03277811168,,,,
+,Broken,Gamma,X,notadate,Basic 99 Z,,,,,,

@@ -1,0 +1,1 @@
+"""SMS backend application package."""

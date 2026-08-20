@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local databases (dev/test only — production is PostgreSQL)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Node
+node_modules/
+.next/
+out/
+
+# Environment & secrets — never commit (REQ-SEC-02)
+.env
+.env.local
+.env.*.local
+
+# Misc
+.DS_Store
+coverage/
+dist/
+build/
+
+# Local backups (off-site copy is authoritative — see ops/backup.sh)
+backups/
+*.dump
+*.sqlite3
